@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block head_extra %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Laporan Inventaris</h1>
+    <div class="header-actions">
+        <button class="btn-outline-ss" onclick="window.print()">
+            <span class="material-symbols-outlined">download</span>
+            Ekspor
+        </button>
+    </div>
+</div>
+
+<!-- Summary KPIs -->
+<div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="kpi-card kpi-primary p-3 p-md-4 h-100">
+            <div class="d-flex justify-content-between align-items-center w-100">
+                <div class="kpi-content-box overflow-hidden me-3">
+                    <div class="kpi-label text-truncate">Jenis Barang</div>
+                    <div class="kpi-value text-truncate" title="{{ kpi.total_barang }}">{{ kpi.total_barang }}</div>
+                    <div class="kpi-sub text-truncate">Varian terdaftar</div>
+                </div>
+                <div class="kpi-icon flex-shrink-0">
+                    <span class="material-symbols-outlined">inventory</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="kpi-card kpi-info p-3 p-md-4 h-100">
+            <div class="d-flex justify-content-between align-items-center w-100">
+                <div class="kpi-content-box overflow-hidden me-3">
+                    <div class="kpi-label text-truncate">Total Stok</div>
+                    <div class="kpi-value text-truncate" title="{{ '{:,}'.format(kpi.total_stok).replace(',', '.') }}">{{ "{:,}".format(kpi.total_stok).replace(",", ".") }}</div>
+                    <div class="kpi-sub text-truncate">Unit tersedia</div>
+                </div>
+                <div class="kpi-icon flex-shrink-0">
+                    <span class="material-symbols-outlined">package_2</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="kpi-card kpi-success p-3 p-md-4 h-100">
+            <div class="d-flex justify-content-between align-items-center w-100">
+                <div class="kpi-content-box overflow-hidden me-3">
+                    <div class="kpi-label text-truncate">Nilai Inventaris</div>
+                    <div class="kpi-value text-truncate" title="{{ kpi.total_nilai | rupiah }}">{{ kpi.total_nilai | rupiah }}</div>
+                    <div class="kpi-sub text-truncate">Total nilai aset</div>
+                </div>
+                <div class="kpi-icon flex-shrink-0">
+                    <span class="material-symbols-outlined">payments</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="kpi-card kpi-danger p-3 p-md-4 h-100">
+            <div class="d-flex justify-content-between align-items-center w-100">
+                <div class="kpi-content-box overflow-hidden me-3">
+                    <div class="kpi-label text-truncate">Stok Kritis</div>
+                    <div class="kpi-value text-truncate" title="{{ kpi.stok_rendah }}">{{ kpi.stok_rendah }}</div>
+                    <div class="kpi-sub text-truncate">Item di bawah minimum</div>
+                </div>
+                <div class="kpi-icon flex-shrink-0">
+                    <span class="material-symbols-outlined">warning</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <!-- Chart: Stok per Kategori -->
+    <div class="col-lg-5">
+        <div class="ss-card">
+            <div class="card-header-custom">
+                <span class="card-title">Distribusi Stok per Kategori</span>
+            </div>
+            <div class="card-body-custom">
+                <div class="chart-container">
+                    <canvas id="laporanChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Breakdown Kategori -->
+    <div class="col-lg-7">
+        <div class="ss-card">
+            <div class="card-header-custom">
+                <span class="card-title">Rincian per Kategori</span>
+            </div>
+            <div class="card-body-custom p-0">
+                <div class="table-responsive">
+                    <table class="table ss-table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Kategori</th>
+                                <th>Jumlah Item</th>
+                                <th>Total Stok</th>
+                                <th>Nilai Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in cat_breakdown %}
+                            <tr>
+                                <td><span class="ss-badge badge-primary">{{ c.kategori }}</span></td>
+                                <td>{{ c.jumlah_item }}</td>
+                                <td>{{ "{:,}".format(c.total_stok).replace(",", ".") }}</td>
+                                <td>{{ c.total_nilai | rupiah }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <!-- Top Items by Value -->
+    <div class="col-lg-6">
+        <div class="ss-card">
+            <div class="card-header-custom">
+                <span class="card-title">Top 5 Barang (Nilai Tertinggi)</span>
+            </div>
+            <div class="card-body-custom p-0">
+                <div class="table-responsive">
+                    <table class="table ss-table mb-0">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Barang</th>
+                                <th>Stok</th>
+                                <th>Nilai Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for b in top_items %}
+                            <tr>
+                                <td><strong>{{ loop.index }}</strong></td>
+                                <td>{{ b.nama }}<br><small style="color:var(--text-muted);">{{ b.kode }}</small></td>
+                                <td>{{ b.stok }} {{ b.satuan }}</td>
+                                <td><strong>{{ (b.stok * b.harga) | rupiah }}</strong></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Low Stock Alerts -->
+    <div class="col-lg-6">
+        <div class="ss-card">
+            <div class="card-header-custom">
+                <span class="card-title">⚠️ Peringatan Stok Rendah</span>
+            </div>
+            <div class="card-body-custom p-0">
+                {% if low_stock %}
+                <div class="table-responsive">
+                    <table class="table ss-table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Barang</th>
+                                <th>Stok Saat Ini</th>
+                                <th>Stok Minimum</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for b in low_stock %}
+                            <tr>
+                                <td>{{ b.nama }}<br><small style="color:var(--text-muted);">{{ b.kode }}</small></td>
+                                <td><strong style="color:var(--danger);">{{ b.stok }}</strong> {{ b.satuan }}</td>
+                                <td>{{ b.stok_min }} {{ b.satuan }}</td>
+                                <td><span class="ss-badge badge-danger">Kritis</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state" style="padding:32px;">
+                    <span class="material-symbols-outlined">check_circle</span>
+                    <h4>Semua Stok Aman</h4>
+                    <p>Tidak ada barang dengan stok di bawah batas minimum.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const kategoriData = {{ kategori_data | safe }};
+    const catColors = ['#b70011','#2563eb','#16a34a','#f59e0b','#8b5cf6','#ec4899','#64748b'];
+    new Chart(document.getElementById('laporanChart'), {
+        type: 'doughnut',
+        data: {
+            labels: kategoriData.labels,
+            datasets: [{
+                data: kategoriData.data,
+                backgroundColor: catColors.slice(0, kategoriData.labels.length),
+                borderWidth: 2,
+                borderColor: '#ffffff',
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '60%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { font: { family: 'Inter', size: 11, weight: 500 }, padding: 12, usePointStyle: true }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

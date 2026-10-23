@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Barang Masuk</h1>
+    <div class="header-actions">
+        <button class="btn-primary-ss" onclick="document.getElementById('formMasuk').classList.toggle('show')">
+            <span class="material-symbols-outlined">add</span>
+            Catat Barang Masuk
+        </button>
+    </div>
+</div>
+
+<!-- Form Catat Masuk -->
+<div class="modal-overlay" id="formMasuk">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3>Catat Barang Masuk</h3>
+            <button class="action-btn" onclick="document.getElementById('formMasuk').classList.remove('show')">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <form method="POST" action="{{ url_for('barang_masuk') }}">
+            <div class="modal-body">
+                <div class="ss-form-group">
+                    <label for="barang_id">Pilih Barang <span style="color:var(--danger);">*</span></label>
+                    <select id="barang_id" name="barang_id" class="ss-select" required>
+                        <option value="">-- Pilih Barang --</option>
+                        {% for b in barang_list %}
+                        <option value="{{ b.id }}">{{ b.kode }} — {{ b.nama }} (Stok: {{ b.stok }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="ss-form-group">
+                    <label for="jumlah">Jumlah Masuk <span style="color:var(--danger);">*</span></label>
+                    <input type="number" id="jumlah" name="jumlah" class="ss-input" placeholder="0" min="1" required>
+                </div>
+                <div class="ss-form-group">
+                    <label for="keterangan">Keterangan</label>
+                    <textarea id="keterangan" name="keterangan" class="ss-textarea" placeholder="Catatan tambahan..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-outline-ss" onclick="document.getElementById('formMasuk').classList.remove('show')">Batal</button>
+                <button type="submit" class="btn-primary-ss">
+                    <span class="material-symbols-outlined">move_to_inbox</span>
+                    Simpan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Recent Incoming -->
+<div class="ss-card">
+    <div class="card-header-custom">
+        <span class="card-title">Riwayat Barang Masuk Terkini</span>
+    </div>
+    <div class="card-body-custom p-0">
+        {% if masuk_list %}
+        <div class="table-responsive">
+            <table class="table ss-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Kode TRX</th>
+                        <th>Barang</th>
+                        <th>Kategori</th>
+                        <th>Jumlah</th>
+                        <th>Tanggal</th>
+                        <th>Petugas</th>
+                        <th>Keterangan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in masuk_list %}
+                    <tr>
+                        <td><strong>{{ t.kode_transaksi }}</strong></td>
+                        <td>{{ t.barang_nama }}</td>
+                        <td><span class="ss-badge badge-info">{{ t.kategori }}</span></td>
+                        <td>
+                            <span class="ss-badge badge-success">
+                                <span class="material-symbols-outlined" style="font-size:14px;">add</span>
+                                {{ t.jumlah }} {{ t.satuan }}
+                            </span>
+                        </td>
+                        <td>{{ t.tanggal }}</td>
+                        <td>{{ t.petugas }}</td>
+                        <td style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ t.keterangan }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <span class="material-symbols-outlined">move_to_inbox</span>
+            <h4>Belum Ada Data</h4>
+            <p>Belum ada catatan barang masuk.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.getElementById('formMasuk').addEventListener('click', function(e) {
+        if (e.target === this) this.classList.remove('show');
+    });
+</script>
+{% endblock %}

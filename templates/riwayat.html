@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Riwayat Transaksi</h1>
+    <div class="header-actions">
+        <button class="btn-outline-ss" onclick="window.print()">
+            <span class="material-symbols-outlined">print</span>
+            Cetak
+        </button>
+    </div>
+</div>
+
+<!-- Filter Bar -->
+<form class="filter-bar" method="GET" action="{{ url_for('riwayat') }}">
+    <div class="filter-input">
+        <input type="text" name="search" class="ss-input" placeholder="Cari kode transaksi atau nama barang..." value="{{ search }}" aria-label="Search transactions">
+    </div>
+    <div class="filter-select">
+        <select name="tipe" class="ss-select" aria-label="Filter type">
+            <option value="">Semua Tipe</option>
+            <option value="masuk" {{ 'selected' if tipe == 'masuk' }}>Barang Masuk</option>
+            <option value="keluar" {{ 'selected' if tipe == 'keluar' }}>Barang Keluar</option>
+        </select>
+    </div>
+    <button type="submit" class="btn-outline-ss">
+        <span class="material-symbols-outlined" style="font-size:18px;">filter_list</span>
+        Filter
+    </button>
+    {% if search or tipe %}
+    <a href="{{ url_for('riwayat') }}" class="btn-outline-ss">
+        <span class="material-symbols-outlined" style="font-size:18px;">close</span>
+        Reset
+    </a>
+    {% endif %}
+</form>
+
+<!-- Table -->
+<div class="ss-card">
+    <div class="card-body-custom p-0">
+        {% if transactions %}
+        <div class="table-responsive">
+            <table class="table ss-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Kode TRX</th>
+                        <th>Tipe</th>
+                        <th>Barang</th>
+                        <th>Kategori</th>
+                        <th>Jumlah</th>
+                        <th>Tanggal</th>
+                        <th>Petugas</th>
+                        <th>Keterangan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in transactions %}
+                    <tr>
+                        <td><strong>{{ t.kode_transaksi }}</strong></td>
+                        <td>
+                            {% if t.tipe == 'masuk' %}
+                            <span class="ss-badge badge-success">
+                                <span class="material-symbols-outlined" style="font-size:14px;">arrow_downward</span>
+                                Masuk
+                            </span>
+                            {% else %}
+                            <span class="ss-badge badge-danger">
+                                <span class="material-symbols-outlined" style="font-size:14px;">arrow_upward</span>
+                                Keluar
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td>{{ t.barang_nama }}<br><small style="color:var(--text-muted);">{{ t.barang_kode }}</small></td>
+                        <td><span class="ss-badge badge-info">{{ t.kategori }}</span></td>
+                        <td><strong>{{ t.jumlah }}</strong> {{ t.satuan }}</td>
+                        <td>{{ t.tanggal }}</td>
+                        <td>{{ t.petugas }}</td>
+                        <td style="max-width:180px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ t.keterangan }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <span class="material-symbols-outlined">history</span>
+            <h4>Tidak Ada Transaksi</h4>
+            <p>Belum ada riwayat transaksi yang sesuai.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

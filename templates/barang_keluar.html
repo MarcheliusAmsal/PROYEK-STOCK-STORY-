@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Barang Keluar</h1>
+    <div class="header-actions">
+        <button class="btn-primary-ss" onclick="document.getElementById('formKeluar').classList.toggle('show')">
+            <span class="material-symbols-outlined">add</span>
+            Catat Barang Keluar
+        </button>
+    </div>
+</div>
+
+<!-- Form Catat Keluar -->
+<div class="modal-overlay" id="formKeluar">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3>Catat Barang Keluar</h3>
+            <button class="action-btn" onclick="document.getElementById('formKeluar').classList.remove('show')">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <form method="POST" action="{{ url_for('barang_keluar') }}">
+            <div class="modal-body">
+                <div class="ss-form-group">
+                    <label for="barang_id">Pilih Barang <span style="color:var(--danger);">*</span></label>
+                    <select id="barang_id" name="barang_id" class="ss-select" required onchange="updateStokInfo(this)">
+                        <option value="">-- Pilih Barang --</option>
+                        {% for b in barang_list %}
+                        <option value="{{ b.id }}" data-stok="{{ b.stok }}" data-satuan="{{ b.satuan }}">{{ b.kode }} — {{ b.nama }} (Stok: {{ b.stok }})</option>
+                        {% endfor %}
+                    </select>
+                    <div class="form-hint" id="stokInfo"></div>
+                </div>
+                <div class="ss-form-group">
+                    <label for="jumlah">Jumlah Keluar <span style="color:var(--danger);">*</span></label>
+                    <input type="number" id="jumlah" name="jumlah" class="ss-input" placeholder="0" min="1" required>
+                </div>
+                <div class="ss-form-group">
+                    <label for="keterangan">Keterangan</label>
+                    <textarea id="keterangan" name="keterangan" class="ss-textarea" placeholder="Catatan tambahan..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-outline-ss" onclick="document.getElementById('formKeluar').classList.remove('show')">Batal</button>
+                <button type="submit" class="btn-primary-ss" style="background:linear-gradient(135deg, var(--warning), #d97706); box-shadow: 0 2px 6px rgba(245,158,11,0.25);">
+                    <span class="material-symbols-outlined">outbox</span>
+                    Keluarkan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Recent Outgoing -->
+<div class="ss-card">
+    <div class="card-header-custom">
+        <span class="card-title">Riwayat Barang Keluar Terkini</span>
+    </div>
+    <div class="card-body-custom p-0">
+        {% if keluar_list %}
+        <div class="table-responsive">
+            <table class="table ss-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Kode TRX</th>
+                        <th>Barang</th>
+                        <th>Kategori</th>
+                        <th>Jumlah</th>
+                        <th>Tanggal</th>
+                        <th>Petugas</th>
+                        <th>Keterangan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in keluar_list %}
+                    <tr>
+                        <td><strong>{{ t.kode_transaksi }}</strong></td>
+                        <td>{{ t.barang_nama }}</td>
+                        <td><span class="ss-badge badge-info">{{ t.kategori }}</span></td>
+                        <td>
+                            <span class="ss-badge badge-danger">
+                                <span class="material-symbols-outlined" style="font-size:14px;">remove</span>
+                                {{ t.jumlah }} {{ t.satuan }}
+                            </span>
+                        </td>
+                        <td>{{ t.tanggal }}</td>
+                        <td>{{ t.petugas }}</td>
+                        <td style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ t.keterangan }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <span class="material-symbols-outlined">outbox</span>
+            <h4>Belum Ada Data</h4>
+            <p>Belum ada catatan barang keluar.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.getElementById('formKeluar').addEventListener('click', function(e) {
+        if (e.target === this) this.classList.remove('show');
+    });
+
+    function updateStokInfo(select) {
+        const opt = select.options[select.selectedIndex];
+        const info = document.getElementById('stokInfo');
+        if (opt.value) {
+            const stok = opt.dataset.stok;
+            const satuan = opt.dataset.satuan;
+            info.textContent = `Stok tersedia: ${stok} ${satuan}`;
+            document.getElementById('jumlah').max = stok;
+        } else {
+            info.textContent = '';
+        }
+    }
+</script>
+{% endblock %}

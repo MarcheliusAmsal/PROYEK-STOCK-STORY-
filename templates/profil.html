@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Profil Saya</h1>
+</div>
+
+<div class="row g-3">
+    <!-- Profile Card -->
+    <div class="col-lg-4">
+        <div class="ss-card">
+            <div class="profile-header" style="flex-direction:column; text-align:center;">
+                <div class="profile-avatar">{{ user.avatar_initial }}</div>
+                <div class="profile-info" style="text-align:center;">
+                    <h2>{{ user.nama }}</h2>
+                    <div class="profile-role">{{ user.role }}</div>
+                    <div class="profile-company">{{ user.perusahaan }}</div>
+                </div>
+            </div>
+            <div style="padding: 0 24px 24px;">
+                <div style="display:flex; gap:8px;">
+                    <button class="btn-primary-ss" style="flex:1; justify-content:center;">
+                        <span class="material-symbols-outlined">edit</span>
+                        Edit Profil
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detail Info -->
+    <div class="col-lg-8">
+        <div class="ss-card">
+            <div class="card-header-custom">
+                <span class="card-title">Informasi Detail</span>
+            </div>
+            <div class="card-body-custom">
+                <div class="profile-detail-row">
+                    <div class="detail-icon"><span class="material-symbols-outlined">person</span></div>
+                    <div>
+                        <div class="detail-label">Nama Lengkap</div>
+                        <div class="detail-value">{{ user.nama }}</div>
+                    </div>
+                </div>
+                <div class="profile-detail-row">
+                    <div class="detail-icon"><span class="material-symbols-outlined">mail</span></div>
+                    <div>
+                        <div class="detail-label">Email</div>
+                        <div class="detail-value">{{ user.email }}</div>
+                    </div>
+                </div>
+                <div class="profile-detail-row">
+                    <div class="detail-icon"><span class="material-symbols-outlined">phone</span></div>
+                    <div>
+                        <div class="detail-label">Telepon</div>
+                        <div class="detail-value">{{ user.telepon }}</div>
+                    </div>
+                </div>
+                <div class="profile-detail-row">
+                    <div class="detail-icon"><span class="material-symbols-outlined">badge</span></div>
+                    <div>
+                        <div class="detail-label">Peran</div>
+                        <div class="detail-value">{{ user.role }}</div>
+                    </div>
+                </div>
+                <div class="profile-detail-row">
+                    <div class="detail-icon"><span class="material-symbols-outlined">business</span></div>
+                    <div>
+                        <div class="detail-label">Perusahaan</div>
+                        <div class="detail-value">{{ user.perusahaan }}</div>
+                    </div>
+                </div>
+                <div class="profile-detail-row">
+                    <div class="detail-icon"><span class="material-symbols-outlined">location_on</span></div>
+                    <div>
+                        <div class="detail-label">Alamat</div>
+                        <div class="detail-value">{{ user.alamat }}</div>
+                    </div>
+                </div>
+                <div class="profile-detail-row">
+                    <div class="detail-icon"><span class="material-symbols-outlined">calendar_today</span></div>
+                    <div>
+                        <div class="detail-label">Bergabung Sejak</div>
+                        <div class="detail-value">{{ user.bergabung }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

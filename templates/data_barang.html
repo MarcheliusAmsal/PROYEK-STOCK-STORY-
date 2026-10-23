@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Data Barang</h1>
+    <div class="header-actions">
+        <a href="{{ url_for('tambah_barang') }}" class="btn-primary-ss">
+            <span class="material-symbols-outlined">add</span>
+            Tambah Barang
+        </a>
+    </div>
+</div>
+
+<!-- Filter Bar -->
+<form class="filter-bar" method="GET" action="{{ url_for('data_barang') }}">
+    <div class="filter-input">
+        <input type="text" name="search" class="ss-input" placeholder="Cari nama atau kode barang..." value="{{ search }}" aria-label="Search items">
+    </div>
+    <div class="filter-select">
+        <select name="kategori" class="ss-select" aria-label="Filter category">
+            <option value="">Semua Kategori</option>
+            {% for cat in categories %}
+            <option value="{{ cat }}" {{ 'selected' if kategori == cat }}>{{ cat }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <button type="submit" class="btn-outline-ss">
+        <span class="material-symbols-outlined" style="font-size:18px;">filter_list</span>
+        Filter
+    </button>
+    {% if search or kategori %}
+    <a href="{{ url_for('data_barang') }}" class="btn-outline-ss">
+        <span class="material-symbols-outlined" style="font-size:18px;">close</span>
+        Reset
+    </a>
+    {% endif %}
+</form>
+
+<!-- Table -->
+<div class="ss-card">
+    <div class="card-body-custom p-0">
+        {% if barang_list %}
+        <div class="table-responsive">
+            <table class="table ss-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Kode</th>
+                        <th>Nama Barang</th>
+                        <th>Kategori</th>
+                        <th>Stok</th>
+                        <th>Satuan</th>
+                        <th>Harga</th>
+                        <th>Lokasi</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b in barang_list %}
+                    <tr>
+                        <td><strong>{{ b.kode }}</strong></td>
+                        <td>{{ b.nama }}</td>
+                        <td><span class="ss-badge badge-info">{{ b.kategori }}</span></td>
+                        <td>
+                            <div class="stock-indicator">
+                                <span class="stock-dot {% if b.stok <= b.stok_min %}stock-critical{% elif b.stok <= b.stok_min * 2 %}stock-low{% else %}stock-ok{% endif %}"></span>
+                                {{ b.stok }}
+                            </div>
+                        </td>
+                        <td>{{ b.satuan }}</td>
+                        <td>{{ b.harga | rupiah }}</td>
+                        <td>{{ b.lokasi }}</td>
+                        <td>
+                            {% if b.stok <= b.stok_min %}
+                                <span class="ss-badge badge-danger">Kritis</span>
+                            {% elif b.stok <= b.stok_min * 2 %}
+                                <span class="ss-badge badge-warning">Rendah</span>
+                            {% else %}
+                                <span class="ss-badge badge-success">Aman</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div style="display:flex; gap:6px;">
+                                <a href="{{ url_for('edit_barang', barang_id=b.id) }}" class="action-btn" title="Edit">
+                                    <span class="material-symbols-outlined">edit</span>
+                                </a>
+                                <button class="action-btn action-danger" title="Hapus" onclick="confirmDelete({{ b.id }}, '{{ b.nama }}')">
+                                    <span class="material-symbols-outlined">delete</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <span class="material-symbols-outlined">inventory_2</span>
+            <h4>Tidak Ada Barang</h4>
+            <p>Belum ada data barang yang sesuai dengan filter Anda.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3>Konfirmasi Hapus</h3>
+            <button class="action-btn" onclick="closeDeleteModal()">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p>Apakah Anda yakin ingin menghapus <strong id="deleteItemName"></strong>?</p>
+            <p style="font-size:12.5px; color:var(--text-muted); margin-top:8px;">Tindakan ini tidak dapat dibatalkan.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-outline-ss" onclick="closeDeleteModal()">Batal</button>
+            <a id="deleteLink" href="#" class="btn-primary-ss" style="background:var(--danger); box-shadow: 0 2px 6px rgba(220,38,38,0.25);">
+                <span class="material-symbols-outlined">delete</span>
+                Hapus
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function confirmDelete(id, name) {
+        document.getElementById('deleteItemName').textContent = name;
+        document.getElementById('deleteLink').href = '/hapus-barang/' + id;
+        document.getElementById('deleteModal').classList.add('show');
+    }
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').classList.remove('show');
+    }
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) closeDeleteModal();
+    });
+</script>
+{% endblock %}

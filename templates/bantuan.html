@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Bantuan & FAQ</h1>
+</div>
+
+<div class="row g-3">
+    <!-- FAQ Section -->
+    <div class="col-lg-8">
+        <div class="ss-card">
+            <div class="card-header-custom">
+                <span class="card-title">Pertanyaan yang Sering Diajukan</span>
+            </div>
+            <div class="card-body-custom">
+                {% for faq in faq_list %}
+                <div class="faq-item" id="faq-{{ loop.index }}">
+                    <button class="faq-question" onclick="toggleFaq({{ loop.index }})">
+                        {{ faq.q }}
+                        <span class="material-symbols-outlined">expand_more</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>{{ faq.a }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact & Quick Links -->
+    <div class="col-lg-4">
+        <div class="ss-card" style="margin-bottom:16px;">
+            <div class="card-header-custom">
+                <span class="card-title">Hubungi Kami</span>
+            </div>
+            <div class="card-body-custom">
+                <div class="profile-detail-row">
+                    <div class="detail-icon"><span class="material-symbols-outlined">mail</span></div>
+                    <div>
+                        <div class="detail-label">Email Support</div>
+                        <div class="detail-value">team@stockstory.id</div>
+                    </div>
+                </div>
+                <div class="profile-detail-row">
+                    <div class="detail-icon"><span class="material-symbols-outlined">phone</span></div>
+                    <div>
+                        <div class="detail-label">Telepon</div>
+                        <div class="detail-value">+62 21 1234 5678</div>
+                    </div>
+                </div>
+                <div class="profile-detail-row">
+                    <div class="detail-icon"><span class="material-symbols-outlined">schedule</span></div>
+                    <div>
+                        <div class="detail-label">Jam Operasional</div>
+                        <div class="detail-value">Senin - Jumat, 08:00 - 17:00</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ss-card">
+            <div class="card-header-custom">
+                <span class="card-title">Pintasan Cepat</span>
+            </div>
+            <div class="card-body-custom">
+                <a href="{{ url_for('dashboard') }}" class="nav-item" style="margin-bottom:4px;">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    Dashboard
+                </a>
+                <a href="{{ url_for('data_barang') }}" class="nav-item" style="margin-bottom:4px;">
+                    <span class="material-symbols-outlined">inventory</span>
+                    Data Barang
+                </a>
+                <a href="{{ url_for('tambah_barang') }}" class="nav-item" style="margin-bottom:4px;">
+                    <span class="material-symbols-outlined">add_circle</span>
+                    Tambah Barang
+                </a>
+                <a href="{{ url_for('laporan') }}" class="nav-item">
+                    <span class="material-symbols-outlined">assessment</span>
+                    Laporan
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function toggleFaq(index) {
+        const item = document.getElementById('faq-' + index);
+        item.classList.toggle('open');
+    }
+</script>
+{% endblock %}
